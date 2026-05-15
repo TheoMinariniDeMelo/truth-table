@@ -1,87 +1,88 @@
 package parser
 
 import (
-	"errors"
-	"fmt"
-	"unicode"
+  "errors"
+  "fmt"
+  "unicode"
 )
 
 type UnidentifiedTokenError struct {
-	position uint16;
+  position uint16;
 };
 
 func (u UnidentifiedTokenError) Error() string {
-	return fmt.Sprintf("Unidentified token at %d", u.position);
+  return fmt.Sprintf("Unidentified token at %d", u.position);
 }
 
 type TokenType uint8;
 
 const (
-	TOK_AND TokenType = iota;
-	TOK_NOT;
-	TOK_OR;
-	TOK_LEFT_PAREN;
-	TOK_RIGHT_PAREN;
-	TOK_PROP;
+  TOK_AND TokenType = iota;
+  TOK_NOT;
+  TOK_OR;
+  TOK_LEFT_PAREN;
+  TOK_RIGHT_PAREN;
+  TOK_PROP;
 )
 
 type Token struct {
-	lexeme string;
-	tokenType TokenType;
+  lexeme string;
+  tokenType TokenType;
 }
 
 type Lexer struct {
-	src string;
-	current uint16;
-	tokens []Token;
+  src string;
+  current uint16;
+  tokens []Token;
 }
 func (l *Lexer) peek() byte {
-	return l.src[l.current];
+  return l.src[l.current];
 }
 
 func (l *Lexer) Next() (Token, error) {
-	if(len(l.src) == 0){
-		return Token{}, errors.New("the logical statment is empty");
-	}
+  if len(l.src) == 0 {
+    return Token{}, errors.New("the logical statment is empty");
+  }
 
-	l.skipWhiteSpaces();
-	
-	var tok Token;
+  l.skipWhiteSpaces();
 
-	c := l.peek();
+  var tok Token;
 
-	if(unicode.IsLetter(rune(c))){
-		tok.lexeme = string(c);
-		tok.tokenType = TOK_PROP;
-		return tok, nil;
-	}
+  c := l.peek();
 
-	switch(c){
-		case '(':
-			tok.lexeme = string(c);
-			tok.tokenType = TOK_LEFT_PAREN;
-		case ')':
-			tok.lexeme = string(c);
-			tok.tokenType = TOK_RIGHT_PAREN;
-		case '~':
-			tok.lexeme = string(c);
-			tok.tokenType = TOK_NOT;
-		case '^':
-			tok.lexeme = string(c);
-			tok.tokenType = TOK_AND;
-		case '|':
-			tok.lexeme = string(c);
-			tok.tokenType = TOK_OR;
-		default:
-			return Token{}, UnidentifiedTokenError{position: l.current}; 
-	};
-	return tok, nil;
+  if unicode.IsLetter(rune(c)) {
+    tok.lexeme = string(c);
+    tok.tokenType = TOK_PROP;
+    return tok, nil;
+  }
+
+  switch c {
+  case '(':
+    tok.lexeme = string(c);
+    tok.tokenType = TOK_LEFT_PAREN;
+  case ')':
+    tok.lexeme = string(c);
+    tok.tokenType = TOK_RIGHT_PAREN;
+  case '~':
+    tok.lexeme = string(c);
+    tok.tokenType = TOK_NOT;
+  case '^':
+    tok.lexeme = string(c);
+    tok.tokenType = TOK_AND;
+  case '|':
+    tok.lexeme = string(c);
+    tok.tokenType = TOK_OR;
+  default:
+    return Token{}, UnidentifiedTokenError{position: l.current}; 
+  };
+
+  return tok, nil;
 }
 
 func (l *Lexer) skipWhiteSpaces() {
-	for i := l.current + 1; i < uint16(len(l.src)); i++ {
-		if(l.src[l.current] != ' ') {
-			return;
-		}
-	}
+  for i := l.current + 1; i < uint16(len(l.src)); i++ {
+    if(l.src[l.current] != ' ') {
+      return;
+    }
+  }
 }
