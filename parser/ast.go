@@ -13,7 +13,7 @@ const (
 
 type AST struct {
 	op    Operation
-	value bool
+	prop string
 	left  *AST
 	right *AST
 }

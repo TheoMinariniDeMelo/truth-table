@@ -25,6 +25,25 @@ const (
   TOK_PROP;
 )
 
+func (t TokenType) ToString() string{
+  switch t {
+  case TOK_AND:
+    return "^";
+  case TOK_OR:
+    return "|";
+  case TOK_NOT:
+    return "~";
+  case TOK_LEFT_PAREN:
+    return "(";
+  case TOK_RIGHT_PAREN:
+    return ")";
+  case TOK_PROP:
+    return "Proposition"
+  default:
+    return ""
+  }
+}
+
 type Token struct {
   lexeme string;
   tokenType TokenType;
@@ -33,8 +52,12 @@ type Token struct {
 type Lexer struct {
   src string;
   current uint16;
-  tokens []Token;
 }
+
+func NewLexer(src string) Lexer {
+  return Lexer{src, 0};
+}
+
 func (l *Lexer) peek() byte {
   return l.src[l.current];
 }
