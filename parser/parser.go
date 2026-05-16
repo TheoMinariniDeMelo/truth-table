@@ -34,15 +34,23 @@ func ParseExpression(lx *Lexer) (*AST, error) {
 			return nil, err
 		}
 
-		if right.op == BINARY_AND {
+		t, err := lx.Next();
+
+		if err != nil {
+			return nil, err
+		}
+
+		switch t.tokenType {
+			case TOK_AND: 
+
 			left = &AST{op: BINARY_AND, left: left, right: right}
-		} else if right.op == BINARY_OR {
+		case TOK_OR:
+
 			left = &AST{op: BINARY_AND, left: left, right: right}
-		} else {
+			default: 
 			return nil, ParseError{position: lx.current, expected: []TokenType{TOK_AND, TOK_OR}};
 		}
 	}
-
 	return left, nil;
 }
 
@@ -88,7 +96,7 @@ func ParseTerm(lx *Lexer) (*AST, error) {
 	}
 	switch t.tokenType{
 		case	TOK_PROP : 
-			return &AST{prop: t.lexeme, op: NONE}, nil;
+		return &AST{prop: t.lexeme, op: NONE}, nil;
 		case TOK_NOT: {
 			left, err := ParseStatment(lx);
 			if err != nil {
