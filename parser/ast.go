@@ -98,10 +98,10 @@ func (t *AST) Print(){
 					s += "NOT "
 				}
 				case NONE: {
-					s = node.prop + " "
+					s += node.prop + " "
 				}
 				default: {
-					s = ""
+					s += "VOID "
 				}
 			}
 			if node.left != nil {
