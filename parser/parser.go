@@ -5,19 +5,19 @@ import (
 )
 
 type ParseError struct {
-	expected []TokenType;
-	position uint16;
+	expected []TokenType
+	position uint16
 }
 
 func (p ParseError) Error() string {
-	var s string;
+	var s string
 	for i, v := range p.expected {
-		s += v.ToString();
+		s += v.ToString()
 		if(i < len(p.expected) - 1) {
-			s+= ", "; 
+			s+= ", " 
 		}
 	}
-	return fmt.Sprintf("Unexpected token at %d, Expected: %s", p.position, s);
+	return fmt.Sprintf("Unexpected token at %d, Expected: %s", p.position, s)
 }
 
 func ParseExpression(lx *Lexer) (*AST, error) {
@@ -27,9 +27,8 @@ func ParseExpression(lx *Lexer) (*AST, error) {
 		return nil, err
 	}
 	
-	t := lx.token; 
-
-	for t.tokenType == TOK_AND || t.tokenType == TOK_OR {
+	for lx.token.tokenType == TOK_AND || lx.token.tokenType == TOK_OR {
+		t := lx.token;
 		right, err := ParseStatment(lx)
 
 		if err != nil {
@@ -43,64 +42,54 @@ func ParseExpression(lx *Lexer) (*AST, error) {
 			case TOK_OR:{
 				left = &AST{op: BINARY_AND, left: left, right: right}
 			}
-			default:{ 
-				return nil, ParseError{position: lx.current, expected: []TokenType{TOK_AND, TOK_OR}};
-			}
 		}
 	}
-	return left, nil;
+	return left, nil
 }
 
 func ParseStatment(lx *Lexer) (*AST, error) {
-	ast, err := ParseTerm(lx);
+	t, err := lx.Next()
 
 	if err != nil {
-		return nil, err;
+		return nil, err
 	}
 
-	if ast != nil {
-		return ast, nil;
-	}
 
-	t := lx.token;
-
-	if t.tokenType == TOK_LEFT_PAREN {
-		left, err := ParseExpression(lx);
-
+	if t.tokenType == TOK_NOT {
+		left, err := ParseStatment(lx)
 		if err != nil {
-			return nil, err;
+			return nil, err
 		}
+		return &AST{left: left, op: UNARY_NOT}, nil
+	}
 
-		if t.tokenType != TOK_RIGHT_PAREN {
-			return nil, ParseError{position: lx.current, expected: []TokenType{TOK_RIGHT_PAREN}};
-		}
-		return left, nil;
-	} 
+	left, err := ParseTerm(lx)
 
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, ParseError{position: lx.current, expected: []TokenType{TOK_NOT, TOK_LEFT_PAREN, TOK_PROP}};
+	return left, nil
 }
 
 func ParseTerm(lx *Lexer) (*AST, error) {
-	t, err := lx.Next();
-
-	if err != nil {
-		return nil, err;
-	}
-
-	switch t.tokenType{
+	t :=  lx.token
+	switch t.tokenType {
 		case TOK_PROP : {
-			lx.Next();
-			return &AST{prop: t.lexeme, op: NONE}, nil;
+			lx.Next()
+			return &AST{prop: t.lexeme, op: NONE}, nil
 		}
-		case TOK_NOT: {
-			lx.Next();
-			left, err := ParseStatment(lx);
+		case TOK_LEFT_PAREN: {
+			left, err := ParseExpression(lx)
 			if err != nil {
-				return nil, err;
+				return nil, err
 			}
-			return &AST{left: left, op: UNARY_NOT}, nil;	
+
+			if lx.token.tokenType != TOK_RIGHT_PAREN {
+				return nil, ParseError{position: lx.current, expected: []TokenType{TOK_RIGHT_PAREN}}
+			}
+			return left, nil
 		}
 	}
-	return nil, nil; 
+	return nil, ParseError{position: lx.current, expected: []TokenType{TOK_PROP, TOK_LEFT_PAREN}}
 }

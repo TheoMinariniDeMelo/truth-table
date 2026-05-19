@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"github.com/TheoMinariniDeMelo/truth-table/queue"
 )
 
 type Operation uint8
@@ -25,8 +26,8 @@ func (t *AST) Eval(props map[string]bool) (bool, error) {
 	switch t.op {
 	case BINARY_OR:
 		{
-			left, err1 := t.left.Eval(props);
-			right, err2 := t.right.Eval(props);
+			left, err1 := t.left.Eval(props)
+			right, err2 := t.right.Eval(props)
 
 			if err1 != nil {
 				return false, err1
@@ -55,13 +56,13 @@ func (t *AST) Eval(props map[string]bool) (bool, error) {
 		}
 	case UNARY_NOT:
 		{
-			left, err := t.left.Eval(props);
+			left, err := t.left.Eval(props)
 
 			if err != nil {
-				return false, err;
+				return false, err
 			}
 
-			return !left, nil;
+			return !left, nil
 		}
 	case NONE:
 		{
@@ -76,42 +77,40 @@ func (t *AST) Eval(props map[string]bool) (bool, error) {
 
 // debug
 func (t *AST) Print(){
-	var queue []*AST = make([]*AST, 1);
-	queue = append(queue, t);
-
+	var queue queue.Queue[*AST]
+	queue.Add(t)
 
 	for len(queue) > 0 {
-		levelSize := len(queue);
+		levelSize := len(queue)
 
-		var s string;
+		s := ""
 
 		for range levelSize {
-			node := queue[len(queue) - 1];
-
+			node := queue.Poll(); 
 			switch node.op {
 				case BINARY_AND: {
-					s += "AND ";
+					s += "AND "
 				}
 				case BINARY_OR: {
-					s += "OR ";
+					s += "OR "
 				}
 				case UNARY_NOT: {
-					s += "NOT ";
+					s += "NOT "
 				}
 				case NONE: {
-					s = node.prop + " ";
+					s = node.prop + " "
 				}
 				default: {
-					s = "";
+					s = ""
 				}
 			}
 			if node.left != nil {
-				queue = append(queue, node.left);
+				queue.Add(node.left)
 			}
 			if node.right != nil {
-				queue = append(queue, node.right);
+				queue.Add(node.right)
 			}
 		}
-		fmt.Printf("%s\n", s);
+		fmt.Printf("%s\n", s)
 	}
 }

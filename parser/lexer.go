@@ -83,6 +83,7 @@ func (l *Lexer) Next() (Token, error) {
 	if unicode.IsLetter(rune(c)) {
 		tok.lexeme = string(c);
 		tok.tokenType = TOK_PROP;
+		l.token = tok;
 		return tok, nil;
 	}
 
