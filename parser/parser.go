@@ -40,7 +40,7 @@ func ParseExpression(lx *Lexer) (*AST, error) {
 				left = &AST{op: BINARY_AND, left: left, right: right}
 			}
 			case TOK_OR:{
-				left = &AST{op: BINARY_AND, left: left, right: right}
+				left = &AST{op: BINARY_OR, left: left, right: right}
 			}
 		}
 	}

@@ -10,15 +10,11 @@ func main(){
 	str := "~p^q|(p^~q|k)";
 
 	var lx *parser.Lexer = parser.NewLexer(str);
+	
+	var props []string = parser.GetProps(*lx);
 
-//	for t, err := lx.Next(); !lx.IsCompleted(); t, err = lx.Next() {
-//		if lxError, ok := err.(parser.UnidentifiedTokenError); ok {
-//			fmt.Printf("Invalid expression: %s\n\r%s", str, lxError.Error());
-//			os.Exit(1);
-//		}
-//		fmt.Printf("%s, ", t.ToString());
-//	}
 	ast, err := parser.ParseExpression(lx);
+
 	if lxError, ok := err.(parser.UnidentifiedTokenError); ok {
 		fmt.Printf("Invalid expression: %s\n\r%s", str, lxError.Error());
 		os.Exit(1);
@@ -27,5 +23,22 @@ func main(){
 		fmt.Printf("Invalid operation: %s\n\r%s", str, lxError.Error());
 		os.Exit(1);
 	}
-	ast.Print();
+
+	result, err := ast.Eval(props);
+
+	if err != nil {
+		fmt.Printf("Invalid operation: %s\n\r%s", str, err.Error());
+		os.Exit(1);
+	}
+	
+	var s string;
+
+	if result {
+		s = "True"
+	} else {
+		s = "False"
+	}
+
+	fmt.Printf("\n\nresult: %s", s);
+
 }
