@@ -15,7 +15,7 @@ func powInt(x, y int) int {
 func main(){
 	args := os.Args
 
-	if len(args) > 2 {
+	if len(args) != 2 {
 		fmt.Printf("You must enter just 1 expression")
 		os.Exit(1)
 	}

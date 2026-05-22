@@ -116,6 +116,7 @@ func (l *Lexer) skipWhiteSpaces() {
 		if(l.src[l.current] != ' ') {
 			return;
 		}
+		l.current += 1;
 	}
 }
 
